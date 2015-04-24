@@ -1,0 +1,73 @@
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+
+public class Main {
+	
+	//writes the result from ColorableGraph
+	public static void writeGraph(ColorableGraph c, String filename){
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter("result_" + filename));
+			writer.write(c.toString());
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	//builds graph
+	private static Graph generateGraph(String filename){
+		Graph g = null;
+
+		try {
+		    String str;
+		    BufferedReader in = new BufferedReader(new FileReader(filename));
+		   
+		    //Initialize graph with the number of vertices
+		    int size = Integer.valueOf(in.readLine());
+		    g = new Graph(size);
+		    
+		    while ((str = in.readLine()) != null) {
+		    	String[] values = str.split(","); 
+		    	//adds an edge to the graph
+		    	g.addEdge(Integer.valueOf(values[0])-1, Integer.valueOf(values[1])-1);
+		    }
+		    in.close();
+
+		} catch (IOException e) { }
+
+		if (g == null){
+			System.err.println("Graph Building Error");
+		}
+		return g;
+	}
+
+	public static void main(String[] args) {
+		String filename;
+		boolean verify = false;
+		
+		if (args.length == 0){
+			filename = "smallgraph.txt";
+		} else {
+			filename = args[0];
+			if (args.length > 1 && args[2].equals("verify")){
+				verify = true;
+			}
+		}
+		//create graph from file
+		Graph G = generateGraph(filename);
+		ColorableGraph c = new ColorableGraph(G);
+		//colors graph in
+		c.color();
+		System.out.println(c);
+		//writes output to file
+		writeGraph(c,filename);
+		
+		
+	}
+	
+}

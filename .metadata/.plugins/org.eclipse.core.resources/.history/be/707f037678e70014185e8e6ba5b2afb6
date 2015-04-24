@@ -1,0 +1,70 @@
+import java.util.ArrayList;
+import java.util.List;
+
+//creates an undirected graph G(V,E) and adjacency list for edges
+public class Graph {
+	//vertices & edges
+	private int V,E;
+	// adjacency matrix of edges
+	private boolean[][] adj;
+	
+	public int E() { 
+		return E; 
+		}
+	
+	public int V() { 
+		return V; 
+		}
+	
+	public void V(int V){
+		this.V = V; 
+		}
+	
+	
+
+	//creates graph with V vertices
+	public Graph (int V){
+		this.V = V;
+		this.E = 0;
+		this.adj = new boolean[V][V];
+		// initialize adjacency list for each vertex to store adjacent vertices
+		for (int i=0; i<V; i++){
+			for (int j=0; j<V; j++){
+				adj[i][j] = false;
+			}
+		}
+	}
+	
+	//list of adjacent vertices to u
+	public List<Integer> adj(int u){
+		List<Integer> adjList = new ArrayList<Integer>();
+		for (int i=0; i<V; i++){
+			if (adj[u][i]){
+				adjList.add(i);
+			}
+		}
+		return adjList;
+	}
+
+	//adds edge and increases edge count
+	public void addEdge(int u, int v){
+		adj[u][v] = true;
+		adj[v][u] = true;
+		E++;
+	}
+	
+	/**
+	 * Utility
+	 */
+	public void printAdjacencyList(){
+		for (int u=0; u<V; u++){
+			System.out.printf("%s-> [ ", u+1);
+			for (int v : adj(u)){
+				System.out.print(v+1 + " ");
+			}
+			System.out.print("]\n");
+		}
+	}
+	
+	
+}

@@ -1,0 +1,163 @@
+import java.util.LinkedList;
+
+public class ColorableGraph {
+	private boolean colorable = true;
+	// list of visited nodes
+	private boolean[] visited;
+	//list of color a vertex
+	private boolean[] color;
+	// list of visited nodes' parent
+	private Integer[] parent;
+	private Cycle cycle;
+	private Graph G;
+	
+	//generates a graph cycle where u and v are the same colors
+	class Cycle {
+		private int u;
+		private int v;
+		private LinkedList<Integer> c;
+		
+		Cycle (int u, int v){
+			this.u = u; 
+			this.v = v;
+			build();
+		}
+		
+		//builds path between u and v with common parent
+		public LinkedList<Integer> build(){
+			Integer t = u;
+			c = new LinkedList<Integer>();
+			c.push(t);
+			//builds the selected nodes within u's ancestry
+			while((t=parent[t]) != null){
+				c.push(t);
+			}
+			
+			
+			// scan through v's parents
+			// if u,v have a common ancestor, this is our cycle
+			t = v;
+			while((t=parent[t]) != null){
+				for (int i=0; i<c.size(); i++){
+					if (t == c.get(t)){
+						//removes uncommon ancestor
+						for (int j=0; j<i; j++){
+							c.pop();
+						}
+					}
+				}
+			}
+			return c;
+		}
+		
+		public LinkedList<Integer> cycle(){ return c; }
+	}
+	
+	//initialize graph and lists
+	public ColorableGraph(Graph G){
+		this.visited = new boolean[G.V()];   
+		this.color = new boolean[G.V()];
+		this.parent = new Integer[G.V()];   	     
+		this.G = G;
+		
+		//initialize lists for visited, color and parent
+		for (int i=0; i<G.V(); i++){
+			visited[i] = false;
+			color[i] = false;
+			parent[i] = null;
+		}
+	}
+	
+	//dfs for each unvisited vertex v adjacent to u and colors as needed
+	public void dfs(Graph G, int u){
+		//adds vertex to visited
+		visited[u] = true;
+		//returns if colorable is false
+		if (!colorable) return; 
+		
+		//visit adjacent vertices
+		for(int v : G.adj(u)){
+			//returns if colorable is false
+			if (!colorable) return;
+			
+			if (!visited[v]){
+				//remembers parent of v
+				parent[v] = u;
+				//mark v as visited
+				visited[v] = true;
+				//update v to the opposite color of parent
+				color[v] = !color[u];
+				//dfs with v as parent
+				dfs(G, v);
+			}
+			
+			//if u and v are same color, cycle
+			if(color[u] == color[v]){
+				colorable = false;
+				//creates cycle
+				cycle = new Cycle(u, v);
+				return;
+			}
+		}
+	}
+	
+	
+	//performs dfs to color graph
+	public void color(){
+		for (int i=0; i<G.V(); i++){
+			if (!visited[i] || i==0){
+				dfs(G, i);
+			}
+		}
+	}
+	
+	
+	//output for graph
+	public String toString(){
+		StringBuilder output = new StringBuilder();
+		// outputs the determination of the problem
+		output.append(String.format("%s\n", colorable ? "Yes":"No"));
+
+		//graph is colorable
+		if (colorable){
+			// outputs the results of the two colors
+			for (int i=0; i<G.V(); i++){
+				output.append(String.format("%s, %s\n", i+1, getColor(color[i])));
+			}
+		} 
+		
+		//graph is not colorable
+		else {
+			// output the substructure
+			for(Integer n : cycle.c()){
+				output.append(String.format("%s,%s\n", n+1, getColor(color[n])));
+			}
+		}
+		return output.toString();
+	}
+	
+	//checks adjacency list for same adjacent colors
+	public boolean checkGraph(){
+		boolean verified = true;
+		for(int u=0; u<G.V(); u++){
+			for(int v : G.adj(u)){
+				if (color[u] == color[v]){
+					verified = (colorable==false);
+				}
+			}
+		}
+		if (verified){
+			System.out.println("Graph Valid");
+		} else {
+			System.out.println("Graph Invalid");
+		}
+		return verified;
+	}
+	
+	//returns a color for true/false
+	private String getColor(boolean color){
+		return color ? "B" : "R";
+	}
+	
+}
+
